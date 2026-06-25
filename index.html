@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ভোটার সার্চ</title>
+<title>ভোটার তথ্য সার্চ</title>
 </head>
 <body>
 
@@ -12,6 +12,8 @@
 <input id="q" placeholder="নাম লিখুন">
 <button onclick="searchData()">সার্চ</button>
 
+<hr>
+
 <div id="out"></div>
 
 <script>
@@ -19,29 +21,41 @@ let data = [];
 
 fetch("data.json")
 .then(res => res.json())
-.then(json => data = json);
+.then(json => {
+  data = json;
+})
+.catch(err => {
+  document.getElementById("out").innerHTML =
+  "data.json লোড হয়নি";
+});
 
 function searchData() {
 
-  let q = document.getElementById("q").value.toLowerCase();
+  let q = document.getElementById("q").value.trim().toLowerCase();
 
   let found = data.find(item =>
+    item.name &&
     item.name.toLowerCase().includes(q)
   );
 
   if(!found){
     document.getElementById("out").innerHTML =
-    "কোন তথ্য পাওয়া যায়নি";
+    "<h3>কোন তথ্য পাওয়া যায়নি</h3>";
     return;
   }
 
   document.getElementById("out").innerHTML = `
     <h3>${found.name}</h3>
-    <p><b>ভোটার নম্বর:</b> ${found.voter_no}</p>
-    <p><b>পিতা:</b> ${found.father}</p>
-    <p><b>মাতা:</b> ${found.mother}</p>
-    <p><b>জন্ম তারিখ:</b> ${found.birth_date}</p>
-    <p><b>ঠিকানা:</b> ${found.address}</p>
+
+    <p><b>ভোটার নম্বর:</b> ${found.voter_no || ""}</p>
+
+    <p><b>পিতা:</b> ${found.father || ""}</p>
+
+    <p><b>মাতা:</b> ${found.mother || ""}</p>
+
+    <p><b>জন্ম তারিখ:</b> ${found.birth_date || ""}</p>
+
+    <p><b>ঠিকানা:</b> ${found.address || ""}</p>
   `;
 }
 </script>
