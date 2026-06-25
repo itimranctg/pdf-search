@@ -18,7 +18,26 @@
 <div id="out"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
-let data = [];
+let txt = "";
+
+document.getElementById("pdf").onchange = async function(e) {
+  const file = e.target.files[0];
+
+  const pdf = await pdfjsLib.getDocument({
+    data: await file.arrayBuffer()
+  }).promise;
+
+  txt = "";
+
+  for(let i=1;i<=pdf.numPages;i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    txt += content.items.map(x=>x.str).join(" ");
+  }
+
+  document.getElementById("out").innerHTML =
+    "PDF লোড হয়েছে";
+}
 
 fetch("data.json")
 .then(res => res.json())
