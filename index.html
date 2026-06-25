@@ -1,9 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PDF Search</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  padding:20px;
+}
+
+input,button{
+  padding:10px;
+  margin:5px 0;
+}
+
+#out{
+  margin-top:15px;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+</style>
 </head>
 <body>
 
@@ -12,75 +31,93 @@
 <input type="file" id="pdf" accept=".pdf">
 <br><br>
 
-<input id="q" placeholder="নাম লিখুন">
+<input type="text" id="q" placeholder="নাম লিখুন">
 <button onclick="go()">সার্চ</button>
 
 <div id="out">আগে PDF আপলোড করুন</div>
 
-<<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
-let txt="";
 
-document.getElementById("pdf").onchange=async(e)=>{
- try{
- document.getElementById("out").innerText="লোড হচ্ছে...";
- const f=e.target.files[0];
+let txt = "";
 
- const pdf=await pdfjsLib.getDocument(
- {data:await f.arrayBuffer()}
- ).promise;
+document.getElementById("pdf").onchange = async (e) => {
 
- txt="";
+  try{
 
- for(let i=1;i<=pdf.numPages;i++){
- let p=await pdf.getPage(i);
- let c=await p.getTextContent();
+    document.getElementById("out").innerText = "লোড হচ্ছে...";
 
- 
- txt+=c.items.map(v=>v.str).join(" ") + "\n";
+    const file = e.target.files[0];
 
- document.getElementById("out").innerText=
- "PDF আপলোড হয়েছে ✅";
- }
- catch{
- document.getElementById("out").innerText=
- "PDF পড়া যায়নি";
- }
-}
+    const pdf = await pdfjsLib.getDocument({
+      data: await file.arrayBuffer()
+    }).promise;
+
+    txt = "";
+
+    for(let i=1;i<=pdf.numPages;i++){
+
+      const page = await pdf.getPage(i);
+
+      const content = await page.getTextContent();
+
+      txt += content.items.map(x => x.str).join(" ") + "\n";
+    }
+
+    document.getElementById("out").innerText =
+    "PDF আপলোড হয়েছে ✅";
+
+  }
+  catch(err){
+
+    document.getElementById("out").innerText =
+    "PDF পড়া যায়নি: " + err.message;
+
+  }
+
+};
 
 function go(){
 
- let q=document.getElementById("q").value.trim();
+  const q = document.getElementById("q").value.trim();
 
- if(!txt){
-   document.getElementById("out").innerText =
-   "আগে PDF আপলোড করুন";
-   return;
- }
+  if(!txt){
 
- let pos = txt.toLowerCase().indexOf(q.toLowerCase());
+    document.getElementById("out").innerText =
+    "আগে PDF আপলোড করুন";
 
- if(pos === -1){
-   document.getElementById("out").innerText =
-   "কিছু পাওয়া যায়নি";
-   return;
- }
+    return;
+  }
 
- let result = txt.substring(
-   Math.max(0, pos - 500),
-   Math.min(txt.length, pos + 1500)
- );
+  if(!q){
 
- document.getElementById("out").innerHTML =
- `<pre style="
- white-space:pre-wrap;
- text-align:left;
- padding:10px;
- border:1px solid #ccc;
- border-radius:8px;
- ">${result}</pre>`;
+    document.getElementById("out").innerText =
+    "নাম লিখুন";
+
+    return;
+  }
+
+  const pos = txt.toLowerCase().indexOf(q.toLowerCase());
+
+  if(pos === -1){
+
+    document.getElementById("out").innerText =
+    "কিছু পাওয়া যায়নি";
+
+    return;
+  }
+
+  const result = txt.substring(
+    Math.max(0,pos-500),
+    Math.min(txt.length,pos+1500)
+  );
+
+  document.getElementById("out").innerHTML =
+  `<pre style="white-space:pre-wrap;">${result}</pre>`;
+
 }
+
 </script>
 
 </body>
