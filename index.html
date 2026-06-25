@@ -37,8 +37,8 @@ document.getElementById("pdf").onchange=async(e)=>{
  let p=await pdf.getPage(i);
  let c=await p.getTextContent();
 
- txt+=c.items.map(v=>v.str).join(" ");
- }
+ 
+ txt+=c.items.map(v=>v.str).join(" ") + "\n";
 
  document.getElementById("out").innerText=
  "PDF আপলোড হয়েছে ✅";
@@ -50,17 +50,36 @@ document.getElementById("pdf").onchange=async(e)=>{
 }
 
 function go(){
- let q=document.getElementById("q").value;
+
+ let q=document.getElementById("q").value.trim();
 
  if(!txt){
- out.innerText="আগে PDF আপলোড করুন";
- return;
+   document.getElementById("out").innerText =
+   "আগে PDF আপলোড করুন";
+   return;
  }
 
- out.innerText=
- txt.includes(q)
- ? "মিল পাওয়া গেছে ✅"
- : "কিছু পাওয়া যায়নি";
+ let pos = txt.toLowerCase().indexOf(q.toLowerCase());
+
+ if(pos === -1){
+   document.getElementById("out").innerText =
+   "কিছু পাওয়া যায়নি";
+   return;
+ }
+
+ let result = txt.substring(
+   Math.max(0, pos - 500),
+   Math.min(txt.length, pos + 1500)
+ );
+
+ document.getElementById("out").innerHTML =
+ `<pre style="
+ white-space:pre-wrap;
+ text-align:left;
+ padding:10px;
+ border:1px solid #ccc;
+ border-radius:8px;
+ ">${result}</pre>`;
 }
 </script>
 
