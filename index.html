@@ -31,32 +31,59 @@ fetch("data.json")
 
 function searchData() {
 
-  let q = document.getElementById("q").value.trim().toLowerCase();
+let txt = "";
 
-  let found = data.find(item =>
-    item.name &&
-    item.name.toLowerCase().includes(q)
-  );
+document.getElementById("pdf").onchange = async (e) => {
+  try {
+    const file = e.target.files[0];
 
-  if(!found){
+    const pdf = await pdfjsLib.getDocument({
+      data: await file.arrayBuffer()
+    }).promise;
+
+    txt = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+
+      txt += content.items.map(x => x.str).join(" ") + "\n";
+    }
+
     document.getElementById("out").innerHTML =
-    "<h3>কোন তথ্য পাওয়া যায়নি</h3>";
+      "PDF আপলোড হয়েছে ✅";
+
+  } catch (err) {
+    document.getElementById("out").innerHTML =
+      "PDF পড়া যায়নি";
+  }
+};
+
+function go() {
+
+  let q = document.getElementById("q").value.trim();
+
+  if (!txt) {
+    document.getElementById("out").innerHTML =
+      "আগে PDF আপলোড করুন";
     return;
   }
 
-  document.getElementById("out").innerHTML = `
-    <h3>${found.name}</h3>
+  let pos = txt.toLowerCase().indexOf(q.toLowerCase());
 
-    <p><b>ভোটার নম্বর:</b> ${found.voter_no || ""}</p>
+  if (pos === -1) {
+    document.getElementById("out").innerHTML =
+      "কিছু পাওয়া যায়নি";
+    return;
+  }
 
-    <p><b>পিতা:</b> ${found.father || ""}</p>
+  let result = txt.substring(
+    Math.max(0, pos - 300),
+    Math.min(txt.length, pos + 1200)
+  );
 
-    <p><b>মাতা:</b> ${found.mother || ""}</p>
-
-    <p><b>জন্ম তারিখ:</b> ${found.birth_date || ""}</p>
-
-    <p><b>ঠিকানা:</b> ${found.address || ""}</p>
-  `;
+  document.getElementById("out").innerHTML =
+    `<pre style="white-space:pre-wrap">${result}</pre>`;
 }
 </script>
 
