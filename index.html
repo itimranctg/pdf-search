@@ -8,14 +8,15 @@
 <body>
 
 <h2>ভোটার তথ্য সার্চ</h2>
-
+<input type="file" id="pdf" accept=".pdf">
+<br><br>
 <input id="q" placeholder="নাম লিখুন">
 <button onclick="searchData()">সার্চ</button>
 
 <hr>
 
 <div id="out"></div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script>
 let data = [];
 
