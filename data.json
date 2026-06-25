@@ -1,64 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PDF → JSON</title>
-</head>
-<body>
-
-<h2>PDF to JSON Generator</h2>
-
-<input type="file" id="pdf" accept=".pdf">
-<br><br>
-
-<button onclick="makeJson()">JSON তৈরি করুন</button>
-
-<pre id="out"></pre>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-<script>
-
-let fullText = "";
-
-document.getElementById("pdf").onchange = async (e)=>{
-
-  fullText = "";
-
-  const file = e.target.files[0];
-
-  const pdf = await pdfjsLib.getDocument({
-    data: await file.arrayBuffer()
-  }).promise;
-
-  for(let i=1;i<=pdf.numPages;i++){
-
-    const page = await pdf.getPage(i);
-
-    const content = await page.getTextContent();
-
-    fullText += content.items.map(x=>x.str).join(" ") + "\n";
+[
+  {
+    "name":"ইমরান",
+    "voter_no":"123456",
+    "father":"আব্দুল করিম",
+    "mother":"রহিমা বেগম",
+    "birth_date":"01/01/2000",
+    "address":"চট্টগ্রাম"
   }
-
-  alert("PDF Loaded");
-};
-
-function makeJson(){
-
-  if(!fullText){
-    alert("আগে PDF আপলোড করুন");
-    return;
-  }
-
-  const data = [{
-    text: fullText
-  }];
-
-  document.getElementById("out").textContent =
-    JSON.stringify(data,null,2);
-}
-</script>
-
-</body>
-</html>
+]
