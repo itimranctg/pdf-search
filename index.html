@@ -1,1 +1,68 @@
-<h1>PDF Search Ready</h1>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PDF Search</title>
+</head>
+<body>
+
+<h2>PDF Upload + Name Search</h2>
+
+<input type="file" id="pdf" accept=".pdf">
+<br><br>
+
+<input id="q" placeholder="নাম লিখুন">
+<button onclick="go()">সার্চ</button>
+
+<div id="out">আগে PDF আপলোড করুন</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.8.69/pdf.min.js"></script>
+
+<script>
+let txt="";
+
+document.getElementById("pdf").onchange=async(e)=>{
+ try{
+ document.getElementById("out").innerText="লোড হচ্ছে...";
+ const f=e.target.files[0];
+
+ const pdf=await pdfjsLib.getDocument(
+ {data:await f.arrayBuffer()}
+ ).promise;
+
+ txt="";
+
+ for(let i=1;i<=pdf.numPages;i++){
+ let p=await pdf.getPage(i);
+ let c=await p.getTextContent();
+
+ txt+=c.items.map(v=>v.str).join(" ");
+ }
+
+ document.getElementById("out").innerText=
+ "PDF আপলোড হয়েছে ✅";
+ }
+ catch{
+ document.getElementById("out").innerText=
+ "PDF পড়া যায়নি";
+ }
+}
+
+function go(){
+ let q=document.getElementById("q").value;
+
+ if(!txt){
+ out.innerText="আগে PDF আপলোড করুন";
+ return;
+ }
+
+ out.innerText=
+ txt.includes(q)
+ ? "মিল পাওয়া গেছে ✅"
+ : "কিছু পাওয়া যায়নি";
+}
+</script>
+
+</body>
+</html>
