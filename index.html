@@ -77,46 +77,49 @@ document.getElementById("pdf").onchange = async (e) => {
   }
 
 };
-
 function go(){
 
   const q = document.getElementById("q").value.trim();
 
   if(!txt){
-
-    document.getElementById("out").innerText =
-    "আগে PDF আপলোড করুন";
-
+    out.innerText = "আগে PDF আপলোড করুন";
     return;
   }
 
-  if(!q){
+  const lines = txt.split("\n");
 
-    document.getElementById("out").innerText =
-    "নাম লিখুন";
+  let found = [];
 
+  for(let i=0;i<lines.length;i++){
+
+    if(lines[i].toLowerCase().includes(q.toLowerCase())){
+
+      let rec = lines.slice(
+        Math.max(0,i-1),
+        Math.min(lines.length,i+8)
+      ).join("\n");
+
+      found.push(rec);
+    }
+  }
+
+  if(found.length===0){
+    out.innerText = "কিছু পাওয়া যায়নি";
     return;
   }
 
-  const pos = txt.toLowerCase().indexOf(q.toLowerCase());
-
-  if(pos === -1){
-
-    document.getElementById("out").innerText =
-    "কিছু পাওয়া যায়নি";
-
-    return;
-  }
-
-  const result = txt.substring(
-    Math.max(0,pos-500),
-    Math.min(txt.length,pos+1500)
-  );
-
-  document.getElementById("out").innerHTML =
-  `<pre style="white-space:pre-wrap;">${result}</pre>`;
+  out.innerHTML = found.map(x=>`
+    <div style="
+      border:1px solid #ccc;
+      padding:10px;
+      margin:10px 0;
+      border-radius:8px">
+      <pre style="white-space:pre-wrap">${x}</pre>
+    </div>
+  `).join("");
 
 }
+
 
 </script>
 
