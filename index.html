@@ -1,126 +1,49 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PDF Search</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  padding:20px;
-}
-
-input,button{
-  padding:10px;
-  margin:5px 0;
-}
-
-#out{
-  margin-top:15px;
-  padding:10px;
-  border:1px solid #ccc;
-  border-radius:8px;
-}
-</style>
+<title>ভোটার সার্চ</title>
 </head>
 <body>
 
-<h2>PDF Upload + Name Search</h2>
+<h2>ভোটার তথ্য সার্চ</h2>
 
-<input type="file" id="pdf" accept=".pdf">
-<br><br>
+<input id="q" placeholder="নাম লিখুন">
+<button onclick="searchData()">সার্চ</button>
 
-<input type="text" id="q" placeholder="নাম লিখুন">
-<button onclick="go()">সার্চ</button>
-
-<div id="out">আগে PDF আপলোড করুন</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<div id="out"></div>
 
 <script>
+let data = [];
 
-let txt = "";
+fetch("data.json")
+.then(res => res.json())
+.then(json => data = json);
 
-document.getElementById("pdf").onchange = async (e) => {
+function searchData() {
 
-  try{
+  let q = document.getElementById("q").value.toLowerCase();
 
-    document.getElementById("out").innerText = "লোড হচ্ছে...";
+  let found = data.find(item =>
+    item.name.toLowerCase().includes(q)
+  );
 
-    const file = e.target.files[0];
-
-    const pdf = await pdfjsLib.getDocument({
-      data: await file.arrayBuffer()
-    }).promise;
-
-    txt = "";
-
-    for(let i=1;i<=pdf.numPages;i++){
-
-      const page = await pdf.getPage(i);
-
-      const content = await page.getTextContent();
-
-      txt += content.items.map(x => x.str).join(" ") + "\n";
-    }
-
-    document.getElementById("out").innerText =
-    "PDF আপলোড হয়েছে ✅";
-
-  }
-  catch(err){
-
-    document.getElementById("out").innerText =
-    "PDF পড়া যায়নি: " + err.message;
-
-  }
-
-};
-function go(){
-
-  const q = document.getElementById("q").value.trim();
-
-  if(!txt){
-    out.innerText = "আগে PDF আপলোড করুন";
+  if(!found){
+    document.getElementById("out").innerHTML =
+    "কোন তথ্য পাওয়া যায়নি";
     return;
   }
 
-  const lines = txt.split("\n");
-
-  let found = [];
-
-  for(let i=0;i<lines.length;i++){
-
-    if(lines[i].toLowerCase().includes(q.toLowerCase())){
-
-      let rec = lines.slice(
-        Math.max(0,i-1),
-        Math.min(lines.length,i+8)
-      ).join("\n");
-
-      found.push(rec);
-    }
-  }
-
-  if(found.length===0){
-    out.innerText = "কিছু পাওয়া যায়নি";
-    return;
-  }
-
-  out.innerHTML = found.map(x=>`
-    <div style="
-      border:1px solid #ccc;
-      padding:10px;
-      margin:10px 0;
-      border-radius:8px">
-      <pre style="white-space:pre-wrap">${x}</pre>
-    </div>
-  `).join("");
-
+  document.getElementById("out").innerHTML = `
+    <h3>${found.name}</h3>
+    <p><b>ভোটার নম্বর:</b> ${found.voter_no}</p>
+    <p><b>পিতা:</b> ${found.father}</p>
+    <p><b>মাতা:</b> ${found.mother}</p>
+    <p><b>জন্ম তারিখ:</b> ${found.birth_date}</p>
+    <p><b>ঠিকানা:</b> ${found.address}</p>
+  `;
 }
-
-
 </script>
 
 </body>
